@@ -1,52 +1,36 @@
+'use strict';
+
 var express = require('express'),
+    appframe = require('./express/appframe.js'),
     response = require('./express/response.js');
-var app = express(),
-    port = 80;
 
-app.get('/echo', function(req, res) {
-    'use strict';
+function create() {
+    var app = express(),
+        port = 80;
 
-    var body = {
-        xhr: req.xhr
-    };
-    response.sendJSON(res, body);
-});
+    appframe.first(app);
 
-app.get('/bad', function() {
-    'use strict';
+    app.use('/echo', function appEcho(req, res) {
 
-    throw new Error('Oops');
-});
+        var body = {
+            xhr: req.xhr
+        };
+        response.sendJSON(res, body);
+    });
 
-app.get('/dusty', function(req, res) {
-    'use strict';
+    app.use('/bad', function appBad() {
+        throw new Error('Oops');
+    });
 
-    response.sendRawDust(res, '{>html_shimy/}{<body}Hello world{/body}', {title: 'Dusty'});
-});
+    app.use('/dusty', function appDusty(req, res) {
+        response.sendRawDust(res, '{>html_shimy/}{<body}Hello world{/body}', {title: 'Dusty'});
+    });
 
-app.use('/', express.static(__dirname + '/../web'));
+    app.use('/', express.static(__dirname + '/../web'));
 
+    appframe.last(app);
 
-function logErrors(err, req, res, next) {
-    'use strict';
-
-    console.error(err.stack);
-    next(err);
+    appframe.start(app, port);
 }
 
-function errorHandler(err, req, res, next) {
-    /* jshint unused: false */
-    'use strict';
-
-    if (req.xhr) {
-        response.sendJSON(res, {msg: 'Something went wrong'}, 500);
-    } else {
-        response.sendRawHTML(res, '<h1>Something went wrong...</h1>', 500);
-    }
-}
-
-app.use(logErrors);
-app.use(errorHandler);
-
-app.listen(port);
-console.log('Listening on port ' + port);
+module.exports = create;

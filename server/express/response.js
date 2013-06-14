@@ -14,10 +14,8 @@ function setHeaders (res, headers) {
     }
 }
 
-function dustErrorHandler(err, res) {
-    // TODO
-    console.error(err.stack);
-    m.sendRawHTML(res, 'Something went wrong...', 500);
+function dustErrorHandler(err) {
+    throw new Error(err);
 }
 
 m.sendJSON = function sendJSON(res, obj, status, headers) {
@@ -28,10 +26,11 @@ m.sendJSON = function sendJSON(res, obj, status, headers) {
     setHeaders(res, headers);
     status = status || 200;
     res.send(status, respString);
+    res.end();
 };
 
 m.sendDust = function sendDust(res, tplName, context, status, headers) {
-    dust.render(tplName, context, function(err, out) {
+    dust.render(tplName, context, function onDustRendered(err, out) {
         if (err) {
             dustErrorHandler(err);
         } else {
@@ -47,12 +46,13 @@ m.sendRawHTML = function sendRawHTML(res, htmlString, status, headers) {
     setHeaders(res, headers);
     status = status || 200;
     res.send(status, htmlString);
+    res.end();
 };
 
 m.sendRawDust = function sendRawDust(res, tplSrc, context, status, headers) {
-    dust.renderSource(tplSrc, context, function(err, out) {
+    dust.renderSource(tplSrc, context, function onDustRenderedSource(err, out) {
         if (err) {
-            dustErrorHandler(err, res);
+            dustErrorHandler(err);
         } else {
             m.sendRawHTML(res, out, status, headers);
         }
