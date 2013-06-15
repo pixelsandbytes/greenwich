@@ -1,16 +1,23 @@
 'use strict';
 
 var domain = require('domain'),
-    response = require('./response.js');
+    responseUtils;
 var appframe = {},
     server;
 
 function errorHandler(err, req, res, nextNotUsed) {
     /* jshint unused: false */
-    if (req.xhr) {
-        response.sendJSON(res, {msg: 'Something went wrong'}, 500);
+
+    if (res.headersSent) {
+        console.info('Error encountered during streaming, cannot send suitable status code or content.  ' +
+            'Truncate response instead.');
+        res.end();
     } else {
-        response.sendRawHTML(res, '<h1>Something went wrong...</h1>', 500);
+        if (req.xhr) {
+            responseUtils.sendJSON(res, {msg: 'Something went wrong'}, 500);
+        } else {
+            responseUtils.sendRawHTML(res, '<h1>Something went wrong...</h1>', 500);
+        }
     }
 }
 
@@ -25,7 +32,7 @@ function first(app) {
             try {
                 errorHandler(err, req, res);
             } catch (err2) {
-                console.error('[' + process.pid + '] Shutdown failed! ' + err2.stack);
+                console.error('[' + process.pid + '] Failed to shut down properly! ' + err2.stack);
             } finally {
                 process.exit(1);
             }
@@ -48,8 +55,9 @@ function start(app, port) {
     console.log('Listening on port ' + port);
 }
 
-appframe.first = function(app) {
+appframe.first = function(app, resUtils) {
     first(app); // Should only be called once
+    responseUtils = resUtils;
     delete appframe.first;
 };
 
