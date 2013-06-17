@@ -2,8 +2,7 @@
 
 var domain = require('domain'),
     responseUtils;
-var appframe = {},
-    server;
+var appframe = {};
 
 function errorHandler(err, req, res, nextNotUsed) {
     /* jshint unused: false */
@@ -51,7 +50,7 @@ function last(app) {
 }
 
 function start(app, port) {
-    server = app.listen(port);
+    app.listen(port);
     console.log('Listening on port ' + port);
 }
 
