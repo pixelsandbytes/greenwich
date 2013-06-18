@@ -1,7 +1,14 @@
-'use strict';
-
+/* jshint strict: false */
 var dust = require('./dust');
-var m = {};
+var r = {};
+
+function stripNullUndefined(obj) {
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key) && (undefined === obj[key] || null === obj[key])) {
+            delete obj[key];
+        }
+    }
+}
 
 function applyOverrides(base, overrides) {
     if (overrides) {
@@ -63,7 +70,8 @@ function attachDustListeners(streamResp, res, status, headers) {
         });
 }
 
-m.sendJSON = function sendJSON(res, obj, status, headers) {
+r.sendJSON = function sendJSON(res, obj, status, headers) {
+    stripNullUndefined(obj);
     var respString = JSON.stringify(obj);
     headers = normalizeHeaders(headers, {
         'Content-Type': 'application/json',
@@ -75,11 +83,7 @@ m.sendJSON = function sendJSON(res, obj, status, headers) {
     res.end();
 };
 
-m.sendDust = function sendDust(res, tplName, context, status, headers) {
-    attachDustListeners(dust.stream(tplName, context), res, status, headers);
-};
-
-m.sendRawHTML = function sendRawHTML(res, htmlString, status, headers) {
+r.sendPage = function sendPage(res, htmlString, status, headers) {
     headers = normalizeHeaders(headers, {
         'Content-Length': htmlString.length
     });
@@ -89,8 +93,28 @@ m.sendRawHTML = function sendRawHTML(res, htmlString, status, headers) {
     res.end();
 };
 
-m.sendRawDust = function sendRawDust(res, tplSrc, context, status, headers) {
+r.sendDust = function sendDust(res, tplName, context, status, headers) {
+    attachDustListeners(dust.stream(tplName, context), res, status, headers);
+};
+
+r.sendRawDust = function sendRawDust(res, tplSrc, context, status, headers) {
     attachDustListeners(dust.renderSource(tplSrc, context), res, status, headers);
 };
 
-module.exports = m;
+r.sendErrorJSON = function sendErrorJSON(res, err, status, headers) {
+    this.sendJSON(res, {
+        type: 'error',
+        message: err.message
+    }, status, headers);
+};
+
+r.sendErrorPage = function sendErrorPage(res, err, status, headers) {
+    var errHTML = '<!DOCTYPE html><head><title>' +
+        (err.message || 'Something went wrong...') +
+        '</title></head><body>' +
+        (err.message || 'Something went wrong...') +
+        '</body></html>';
+    this.sendPage(res, errHTML, status, headers);
+};
+
+module.exports = r;

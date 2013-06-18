@@ -5,7 +5,7 @@ var dust = require('dustjs-linkedin'),
     path = require('path');
 
 dust.onLoad = function(name, callback) {
-    var tplPath = path.join(path.resolve(__dirname, '..', '..', 'templates'), name + '.dust');
+    var tplPath = path.join(path.resolve(__dirname, '..', 'templates'), name + '.dust');
     fs.readFile(tplPath, 'utf8', callback);
 };
 
