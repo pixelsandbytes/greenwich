@@ -1,5 +1,6 @@
 /* jshint strict: false */
-var dust = require('./dust');
+var q = require('q'),
+    dust = require('./dust');
 var r = {};
 
 function stripNullUndefined(obj) {
@@ -49,6 +50,8 @@ function normalizeAndSendDustHeaders(res, status, headers) {
 }
 
 function attachDustListeners(streamResp, res, status, headers) {
+    var deferred = q.defer();
+
     streamResp
         .on('data', function onDustData(data) {
             if (!data) {
@@ -64,10 +67,24 @@ function attachDustListeners(streamResp, res, status, headers) {
                 normalizeAndSendDustHeaders(res, status, headers);
             }
             res.end();
+            deferred.resolve();
         })
         .on('error', function onDustStreamError(err) {
-            throw new Error(err);
+            deferred.reject(new Error(err));
         });
+
+    return deferred.promise;
+}
+
+function promiseFilter(promise, returnPromise) {
+    if (!returnPromise) {
+        promise.fail(function (reason) {
+            throw reason;
+        })
+        .done();
+    } else {
+        return promise;
+    }
 }
 
 r.sendJSON = function sendJSON(res, obj, status, headers) {
@@ -93,28 +110,27 @@ r.sendPage = function sendPage(res, htmlString, status, headers) {
     res.end();
 };
 
-r.sendDust = function sendDust(res, tplName, context, status, headers) {
-    attachDustListeners(dust.stream(tplName, context), res, status, headers);
+r.sendDust = function sendDust(res, tplName, context, status, headers, returnPromise) {
+    var promise = attachDustListeners(dust.stream(tplName, context), res, status, headers);
+    return promiseFilter(promise, returnPromise);
 };
 
-r.sendRawDust = function sendRawDust(res, tplSrc, context, status, headers) {
-    attachDustListeners(dust.renderSource(tplSrc, context), res, status, headers);
+r.sendRawDust = function sendRawDust(res, tplSrc, context, status, headers, returnPromise) {
+    var promise = attachDustListeners(dust.renderSource(tplSrc, context), res, status, headers);
+    return promiseFilter(promise, returnPromise);
 };
 
-r.sendErrorJSON = function sendErrorJSON(res, err, status, headers) {
+r.sendErrorJSON = function sendErrorJSON(res, err, status) {
     this.sendJSON(res, {
         type: 'error',
         message: err.message
-    }, status, headers);
+    }, status);
 };
 
-r.sendErrorPage = function sendErrorPage(res, err, status, headers) {
-    var errHTML = '<!DOCTYPE html><head><title>' +
-        (err.message || 'Something went wrong...') +
-        '</title></head><body>' +
-        (err.message || 'Something went wrong...') +
-        '</body></html>';
-    this.sendPage(res, errHTML, status, headers);
+r.sendErrorPage = function sendErrorPage(res, err, status) {
+    var errMessage = err.message || 'Something went wrong...';
+    return this.sendRawDust(res, '{>html_shim/}{<body}' + errMessage + '{/body}', {title: errMessage},
+        status, undefined, true);
 };
 
 module.exports = r;

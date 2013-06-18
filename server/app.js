@@ -4,7 +4,7 @@ var express = require('express'),
 
 function defineApp(app) {
 
-    app.use('/echo', function appEcho(req, res) {
+    app.use('/print', function appEcho(req, res) {
 
         var body = {
             xhr: req.xhr
@@ -12,7 +12,7 @@ function defineApp(app) {
         responder.sendJSON(res, body);
     });
 
-    app.use('/bad', function appBad() {
+    app.use('/fail', function appBad() {
         throw new Error('Oops');
     });
 
@@ -22,18 +22,18 @@ function defineApp(app) {
             hag: function(chunk) {
                 return chunk.map(function(chunk) {
                     setTimeout(function() {
-                        chunk.end('Hag. ');
+                        chunk.end('Hag.');
                     }, 2000);
                 });
             }
         });
     });
 
-    app.use('/dusty', function appDusty(req, res) {
+    app.use('/dust-fail', function appDusty(req, res) {
         responder.sendRawDust(res, '{>html_shimy/}{<body}Hello world{/body}', {title: 'Dusty'});
     });
 
-    app.use('/unfinished', function appUnfinished(req, res) {
+    app.use('/dust-die', function appUnfinished(req, res) {
         responder.sendRawDust(res, '{>html_shim/}{<body}Hockey on NBC. {fail}{/body}', {
             title: 'Unfinished',
             fail: function(chunk) {
