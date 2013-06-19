@@ -17,6 +17,10 @@ function defineApp(app) {
     });
 
     app.use('/dust', function appDust(req, res) {
+        responder.sendRawDust(res, '{>html_shim/}{<body}He is not Judge Judy and executioner!{/body}', {});
+    });
+
+    app.use('/dust-delay', function appDust(req, res) {
         responder.sendRawDust(res, '{>html_shim/}{<body}Fascist. {hag}{/body}', {
             title: 'Dust',
             hag: function(chunk) {
@@ -27,6 +31,10 @@ function defineApp(app) {
                 });
             }
         });
+    });
+
+    app.use('/dust-bad', function appDusty(req, res) {
+        responder.sendRawDust(res, '{>html_shim/}{<body}Hello world{/bod}', {title: 'Dusty'});
     });
 
     app.use('/dust-fail', function appDusty(req, res) {

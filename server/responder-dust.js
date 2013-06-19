@@ -49,8 +49,9 @@ function normalizeAndSendDustHeaders(res, status, headers) {
     res.writeHead(status);
 }
 
-function attachDustListeners(streamResp, res, status, headers) {
-    var deferred = q.defer();
+function attachDustListeners(streamResp, res, status, headers, delayResolve) {
+    var deferred = q.defer(),
+        resolveTimer;
 
     streamResp
         .on('data', function onDustData(data) {
@@ -67,7 +68,10 @@ function attachDustListeners(streamResp, res, status, headers) {
                 normalizeAndSendDustHeaders(res, status, headers);
             }
             res.end();
-            deferred.resolve();
+            resolveTimer = setTimeout(function() {
+                deferred.resolve();
+            }, (delayResolve ? 500 : 0));
+            resolveTimer.unref();
         })
         .on('error', function onDustStreamError(err) {
             deferred.reject(new Error(err));
@@ -111,12 +115,12 @@ r.sendPage = function sendPage(res, htmlString, status, headers) {
 };
 
 r.sendDust = function sendDust(res, tplName, context, status, headers, returnPromise) {
-    var promise = attachDustListeners(dust.stream(tplName, context), res, status, headers);
+    var promise = attachDustListeners(dust.stream(tplName, context), res, status, headers, returnPromise);
     return promiseFilter(promise, returnPromise);
 };
 
 r.sendRawDust = function sendRawDust(res, tplSrc, context, status, headers, returnPromise) {
-    var promise = attachDustListeners(dust.renderSource(tplSrc, context), res, status, headers);
+    var promise = attachDustListeners(dust.renderSource(tplSrc, context), res, status, headers, returnPromise);
     return promiseFilter(promise, returnPromise);
 };
 
