@@ -1,7 +1,7 @@
 /* jshint strict: false */
 var h2o = require('h2o'),
     app = require('./app.js'),
-    logger = require('./../node_modules/h2o/lib/impl/logger-console.js'),
+    logger = h2o.utils['logger-console'],
     responder = require('./responder-dust.js');
 
 h2o()
