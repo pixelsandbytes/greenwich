@@ -12,6 +12,7 @@
     "dependencies": {
         "dustjs-linkedin": "~1.2.5",
         "express": "~3.2.6",
+        "h2o": "~0.0.1",
         "q": "~0.9.6"
     },
     "engines": {
