@@ -5,19 +5,20 @@
 </head>
 
 <body>
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <div class="container"></div>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script type="text/javascript">
     $.ajax({
-        url: '/echo'
+        url: '/print'
     })
     .done(function(data) {
-        alert(JSON.stringify(data));
+        $('.container').append('<div>' + JSON.stringify(data) + '</div>');
     })
     .fail(function(xhr, status, error) {
-        alert(error);
+        $('.container').append('<div>' + JSON.stringify(error) + '</div>');
     })
     .always(function() {
-        alert("Done!");
+        $('.container').append('<div>Done!</div>');
     });
     </script>
 </body>

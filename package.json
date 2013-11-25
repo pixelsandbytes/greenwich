@@ -5,14 +5,17 @@
         "grunt": "~0.4.1",
         "grunt-cli": "~0.1.9",
         "grunt-contrib-jshint": "~0.6.0",
-        "grunt-contrib-uglify": "~0.2.2",
         "grunt-simple-mocha": "~0.4.0",
-        "should": "~1.2.2"
+        "should": "~2.1.0"
     },
     "dependencies": {
         "dustjs-linkedin": "~1.2.5",
         "express": "~3.2.6",
         "h2o": "~0.0.1",
+        "hydrogen": "~0.2.0",
+        "logger": "https://npm.fury.io/tKvHRyQXzYnta7X8vjUt/me/logger/-/latest.tgz",
+        "moment": "~2.4.0",
+        "moment-timezone": "~0.0.3",
         "q": "~0.9.6"
     },
     "engines": {

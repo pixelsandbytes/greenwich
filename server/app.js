@@ -4,7 +4,7 @@ var express = require('express'),
 
 function defineApp(app) {
 
-    app.use('/print', function appEcho(req, res) {
+    app.use('/print', function appPrint(req, res) {
 
         var body = {
             xhr: req.xhr

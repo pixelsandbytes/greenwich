@@ -2,7 +2,8 @@
 var h2o = require('h2o'),
     app = require('./app'),
     responder = require('./responder-dust'),
-    logger = h2o.utils['logger-console'],
+    Logger = require('logger'),
+    logger = Logger.makeInst(),
     errorHandler = h2o.utils['error-with-xhr'](responder, logger);
 
 h2o()
