@@ -20,7 +20,7 @@ var unsupportedFromTimeZones = [
 ];
 
 /* global describe, it */
-describe('translate', function() {
+describe('TimeHelper.translate', function() {
 
     describe('between same timezones', function() {
         it('should return the same date/time string', function() {
