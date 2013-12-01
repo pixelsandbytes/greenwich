@@ -1,5 +1,5 @@
 require('should');
-var timeHelper = require('./../lib/time-helper'),
+var timeHelper = require('./../../lib/utils/time-helper'),
     fs = require('fs'),
     path = require('path'),
     readline = require('readline');
@@ -145,7 +145,7 @@ describe('translate', function() {
 
     describe('specific timezone', function() {
         var tzData = readline.createInterface({
-            input: fs.createReadStream(path.resolve(__dirname, '../resources/geonames/timeZones.txt'),
+            input: fs.createReadStream(path.resolve(__dirname, '../../resources/geonames/timeZones.txt'),
                 { encoding: 'utf8' }),
             output: process.stdout,
             terminal: false
