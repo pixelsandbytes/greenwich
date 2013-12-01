@@ -143,34 +143,37 @@ describe('translate', function() {
         });
     });
 
+    describe('specific timezone', function() {
+        var tzData = readline.createInterface({
+            input: fs.createReadStream(path.resolve(__dirname, '../resources/geonames/timeZones.txt'),
+                { encoding: 'utf8' }),
+            output: process.stdout,
+            terminal: false
+        });
 
-    var tzData = readline.createInterface({
-        input: fs.createReadStream(path.resolve(__dirname, 'geonames-timezones.txt'), { encoding: 'utf8' }),
-        output: process.stdout,
-        terminal: false
-    });
 
-    var dateTime = '1969-07-21T02:56';
-    tzData.on('line', function(line) {
-        var tz = line.split('\t')[1].trim();
-        var isUnsupportedForTranslatingFrom = unsupportedFromTimeZones.indexOf(tz) > -1;
+        var dateTime = '1969-07-21T02:56';
+        tzData.on('line', function(line) {
+            var tz = line.split('\t')[1].trim();
+            var isUnsupportedForTranslatingFrom = unsupportedFromTimeZones.indexOf(tz) > -1;
 
-        describe(tz, function() {
-            it((isUnsupportedForTranslatingFrom ? 'cannot' : 'can') + ' be translated from', function() {
-                var func = function() {
-                    timeHelper.translate(tz, 'America/Los_Angeles', dateTime);
-                };
-                if (isUnsupportedForTranslatingFrom) {
-                    func.should.throw();
-                } else {
+            describe(tz, function() {
+                it((isUnsupportedForTranslatingFrom ? 'cannot' : 'can') + ' be translated from', function() {
+                    var func = function() {
+                        timeHelper.translate(tz, 'America/Los_Angeles', dateTime);
+                    };
+                    if (isUnsupportedForTranslatingFrom) {
+                        func.should.throw();
+                    } else {
+                        func.should.not.throw();
+                    }
+                });
+                it('can be translated to', function() {
+                    var func = function() {
+                        timeHelper.translate('America/Los_Angeles', tz, dateTime);
+                    };
                     func.should.not.throw();
-                }
-            });
-            it('can be translated to', function() {
-                var func = function() {
-                    timeHelper.translate('America/Los_Angeles', tz, dateTime);
-                };
-                func.should.not.throw();
+                });
             });
         });
     });
