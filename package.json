@@ -9,6 +9,7 @@
         "should": "~2.1.0"
     },
     "dependencies": {
+        "caller-id": "~0.1.0",
         "dustjs-linkedin": "~1.2.5",
         "express": "~3.2.6",
         "h2o": "~0.0.1",
@@ -16,7 +17,8 @@
         "logger": "https://npm.fury.io/tKvHRyQXzYnta7X8vjUt/me/logger/-/latest.tgz",
         "moment": "~2.4.0",
         "moment-timezone": "~0.0.3",
-        "q": "~0.9.6"
+        "q": "~0.9.6",
+        "timezone-js": "~0.4.6"
     },
     "engines": {
         "node": ">=0.10"
