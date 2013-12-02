@@ -1,8 +1,7 @@
 require('should');
 var timeHelper = require('./../../lib/utils/time-helper'),
     fs = require('fs'),
-    path = require('path'),
-    readline = require('readline');
+    path = require('path');
 
 /* See https://github.com/mde/timezone-js/issues/88 */
 var unsupportedFromTimeZones = [
@@ -144,20 +143,12 @@ describe('TimeHelper.translate', function() {
     });
 
     describe('specific timezone', function() {
-        var tzData = readline.createInterface({
-            input: fs.createReadStream(path.resolve(__dirname, '../../resources/geonames/timeZones.txt'),
-                { encoding: 'utf8' }),
-            output: process.stdout,
-            terminal: false
-        });
-
-
         var dateTime = '1969-07-21T02:56';
-        tzData.on('line', function(line) {
-            var tz = line.split('\t')[1].trim();
-            var isUnsupportedForTranslatingFrom = unsupportedFromTimeZones.indexOf(tz) > -1;
 
-            describe(tz, function() {
+        function createDescribeFunc(tz) {
+            return function() {
+                var isUnsupportedForTranslatingFrom = unsupportedFromTimeZones.indexOf(tz) > -1;
+
                 it((isUnsupportedForTranslatingFrom ? 'cannot' : 'can') + ' be translated from', function() {
                     var func = function() {
                         timeHelper.translate(tz, 'America/Los_Angeles', dateTime);
@@ -168,14 +159,23 @@ describe('TimeHelper.translate', function() {
                         func.should.not.throw();
                     }
                 });
+
                 it('can be translated to', function() {
                     var func = function() {
                         timeHelper.translate('America/Los_Angeles', tz, dateTime);
                     };
                     func.should.not.throw();
                 });
-            });
-        });
+            };
+        }
+
+        var tzFile = fs.readFileSync(path.resolve(__dirname, '../../resources/geonames/timeZones.txt'),
+            { encoding: 'utf8' });
+        var tzLines = tzFile.split('\n');
+        for (var i = 0; i < tzLines.length; i++) {
+            var tz = tzLines[i].split('\t')[1].trim();
+            describe(tz, createDescribeFunc(tz));
+        }
     });
 
 });
