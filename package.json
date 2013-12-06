@@ -15,8 +15,10 @@
         "h2o": "~0.0.1",
         "hydrogen": "~0.2.0",
         "logger": "https://npm.fury.io/tKvHRyQXzYnta7X8vjUt/me/logger/-/latest.tgz",
+        "lru-cache": "~2.5.0",
         "moment": "~2.4.0",
         "moment-timezone": "~0.0.3",
+        "nock": "~0.25.0",
         "q": "~0.9.6",
         "timezone-js": "~0.4.6"
     },

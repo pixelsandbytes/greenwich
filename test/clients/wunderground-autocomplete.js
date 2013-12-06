@@ -1,5 +1,6 @@
 require('should');
-var acClient = require('./../../lib/clients/wunderground-autocomplete');
+var acClient = require('./../../lib/clients/wunderground-autocomplete'),
+    nock = require('nock');
 
 /* global describe, it */
 describe('WndrgrndAutoCompleteClient.buildQueryParams', function() {
@@ -269,6 +270,124 @@ describe('WndrgrndAutoCompleteClient.parseQueryResponse', function() {
                 acClient.parseQueryResponse(apiRes);
             };
             func.should.throw(/^Malformed results \(not JSON\)/);
+        });
+    });
+
+});
+
+/* global describe, before, it */
+describe('WndrgrndAutoCompleteClient.queryCities', function() {
+    var apiEndpoint = 'http://autocomplete.wunderground.com',
+        apiResource = '/aq?query=Paris&c=',
+        queryString = 'Paris';
+
+    describe('200 response from API with cities', function() {
+        var apiMock;
+
+        before(function() {
+            apiMock = nock(apiEndpoint)
+                .get(apiResource)
+                .reply(200, { RESULTS: [
+                    {
+                        'name': 'New York City, New York',
+                        'type': 'city',
+                        'c': 'US',
+                        'zmw': '10001.5.99999',
+                        'tz': 'America/New_York',
+                        'tzs': 'EST',
+                        'l': '/q/zmw:10001.5.99999'
+                    },{
+                        'name': 'New Orleans, Louisiana',
+                        'type': 'city',
+                        'c': 'US',
+                        'zmw': '70112.1.99999',
+                        'tz': 'America/Chicago',
+                        'tzs': 'CST',
+                        'l': '/q/zmw:70112.1.99999'
+                    },{
+                        'name': 'Newark, New Jersey',
+                        'type': 'city',
+                        'c': 'US',
+                        'zmw': '07101.1.99999',
+                        'tz': 'America/New_York',
+                        'tzs': 'EST',
+                        'l': '/q/zmw:07101.1.99999'
+                    }
+                ] });
+        });
+
+        it('should resolve promise with cities', function(done) {
+            acClient.queryCities(queryString)
+                .then(function(results) {
+                    results.should.eql([
+                        {
+                            city: 'New York City, New York',
+                            timezone: 'America/New_York',
+                            tz: 'EST',
+                            path: '/q/zmw:10001.5.99999'
+                        },{
+                            city: 'New Orleans, Louisiana',
+                            timezone: 'America/Chicago',
+                            tz: 'CST',
+                            path: '/q/zmw:70112.1.99999'
+                        },{
+                            city: 'Newark, New Jersey',
+                            timezone: 'America/New_York',
+                            tz: 'EST',
+                            path: '/q/zmw:07101.1.99999'
+                        }
+                    ]);
+                    apiMock.done();
+                    done();
+                })
+                .fail(function() {
+                    true.should.equal(false);
+                });
+        });
+    });
+
+    describe('200 response from API but with malformed JSON', function() {
+        var apiMock;
+
+        before(function() {
+            apiMock = nock(apiEndpoint)
+                .get(apiResource)
+                .reply(200, 'Not JSON results');
+        });
+
+        it('should resolve promise with cities', function(done) {
+            acClient.queryCities(queryString)
+                .then(function() {
+                    true.should.equal(false);
+                })
+                .fail(function(e) {
+                    e.message.should.equal('Could not parse response from querying ' + apiEndpoint + apiResource);
+                    apiMock.done();
+                    done();
+                });
+        });
+    });
+
+    describe('500 response from API', function() {
+        var apiMock;
+
+        before(function() {
+            apiMock = nock(apiEndpoint)
+                .get(apiResource)
+                .reply(500, '');
+        });
+
+        it('should resolve promise with cities', function(done) {
+            acClient.queryCities(queryString)
+                .then(function() {
+                    true.should.equal(false);
+                })
+                .fail(function(e) {
+                    e.message.should.equal('Unsuccessful status code returned (500) when querying ' + apiEndpoint +
+                        apiResource);
+                    apiMock.done();
+                    done();
+                });
         });
     });
 
