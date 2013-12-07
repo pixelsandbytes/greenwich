@@ -3,21 +3,6 @@ var timeHelper = require('./../../lib/utils/time-helper'),
     fs = require('fs'),
     path = require('path');
 
-/* See https://github.com/mde/timezone-js/issues/88 */
-var unsupportedFromTimeZones = [
-    'Europe/Chisinau',
-    'Europe/Kaliningrad',
-    'Europe/Kiev',
-    'Europe/Minsk',
-    'Europe/Moscow',
-    'Europe/Riga',
-    'Europe/Simferopol',
-    'Europe/Tallinn',
-    'Europe/Uzhgorod',
-    'Europe/Vilnius',
-    'Europe/Zaporozhye'
-];
-
 /* global describe, it */
 describe('TimeHelper.translate', function() {
 
@@ -147,17 +132,11 @@ describe('TimeHelper.translate', function() {
 
         function createDescribeFunc(tz) {
             return function() {
-                var isUnsupportedForTranslatingFrom = unsupportedFromTimeZones.indexOf(tz) > -1;
-
-                it((isUnsupportedForTranslatingFrom ? 'cannot' : 'can') + ' be translated from', function() {
+                it('can be translated from', function() {
                     var func = function() {
                         timeHelper.translate(tz, 'America/Los_Angeles', dateTime);
                     };
-                    if (isUnsupportedForTranslatingFrom) {
-                        func.should.throw();
-                    } else {
-                        func.should.not.throw();
-                    }
+                    func.should.not.throw();
                 });
 
                 it('can be translated to', function() {
