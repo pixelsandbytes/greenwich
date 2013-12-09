@@ -6,7 +6,9 @@
         "grunt-cli": "~0.1.9",
         "grunt-contrib-jshint": "~0.6.0",
         "grunt-simple-mocha": "~0.4.0",
-        "should": "~2.1.0"
+        "nock": "~0.25.0",
+        "should": "~2.1.0",
+        "sinon": "~1.7.3"
     },
     "dependencies": {
         "caller-id": "~0.1.0",
@@ -18,7 +20,6 @@
         "lru-cache": "~2.5.0",
         "moment": "~2.4.0",
         "moment-timezone": "~0.0.3",
-        "nock": "~0.25.0",
         "q": "~0.9.6",
         "timezone-js": "~0.4.7"
     },
